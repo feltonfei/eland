@@ -392,6 +392,7 @@ class TransformerModel:
         self._tokenizer = transformers.AutoTokenizer.from_pretrained(
             self._model_id,
             use_fast=False,
+            use_auth_token=True
         )
 
         # check for a supported tokenizer
@@ -469,27 +470,27 @@ class TransformerModel:
     def _create_traceable_model(self) -> _TraceableModel:
         if self._task_type == "fill_mask":
             model = transformers.AutoModelForMaskedLM.from_pretrained(
-                self._model_id, torchscript=True
+                self._model_id, torchscript=True, use_auth_token=True
             )
             model = _DistilBertWrapper.try_wrapping(model)
             return _TraceableFillMaskModel(self._tokenizer, model)
 
         elif self._task_type == "ner":
             model = transformers.AutoModelForTokenClassification.from_pretrained(
-                self._model_id, torchscript=True
+                self._model_id, torchscript=True, use_auth_token=True
             )
             model = _DistilBertWrapper.try_wrapping(model)
             return _TraceableNerModel(self._tokenizer, model)
 
         elif self._task_type == "text_classification":
             model = transformers.AutoModelForSequenceClassification.from_pretrained(
-                self._model_id, torchscript=True
+                self._model_id, torchscript=True, use_auth_token=True
             )
             model = _DistilBertWrapper.try_wrapping(model)
             return _TraceableTextClassificationModel(self._tokenizer, model)
 
         elif self._task_type == "text_embedding":
-            model = _SentenceTransformerWrapperModule.from_pretrained(self._model_id)
+            model = _SentenceTransformerWrapperModule.from_pretrained(self._model_id, use_auth_token=True)
             if not model:
                 model = _DPREncoderWrapper.from_pretrained(self._model_id)
             if not model:
@@ -500,7 +501,7 @@ class TransformerModel:
 
         elif self._task_type == "zero_shot_classification":
             model = transformers.AutoModelForSequenceClassification.from_pretrained(
-                self._model_id, torchscript=True
+                self._model_id, torchscript=True, use_auth_token=True
             )
             model = _DistilBertWrapper.try_wrapping(model)
             return _TraceableZeroShotClassificationModel(self._tokenizer, model)
